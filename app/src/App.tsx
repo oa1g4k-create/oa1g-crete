@@ -1,17 +1,19 @@
 import { useState } from 'react'
 import { GoalsPage } from './pages/GoalsPage'
 import { HistoryPage } from './pages/HistoryPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { SkillsPage } from './pages/SkillsPage'
 import { TodayPage } from './pages/TodayPage'
 import { AppProvider } from './store/AppContext'
 
-type Tab = 'today' | 'history' | 'goals' | 'skills'
+type Tab = 'today' | 'history' | 'goals' | 'skills' | 'settings'
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'today', label: '今日', icon: '📝' },
   { id: 'history', label: '記録', icon: '📅' },
   { id: 'goals', label: '目標', icon: '🎯' },
   { id: 'skills', label: 'スキル', icon: '💡' },
+  { id: 'settings', label: '設定', icon: '⚙️' },
 ]
 
 function AppShell() {
@@ -30,6 +32,7 @@ function AppShell() {
         {tab === 'history' && <HistoryPage />}
         {tab === 'goals' && <GoalsPage />}
         {tab === 'skills' && <SkillsPage />}
+        {tab === 'settings' && <SettingsPage />}
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 border-t border-slate-800 bg-slate-900/95 backdrop-blur">
