@@ -3,17 +3,68 @@
 App ID: 1536677700794916 ｜ 作成 2026-09-29
 参照元: 「DECA Ad Meta App Review 進捗記録」「Meta App review 提出用」（Google Drive）
 
-> 動画ファイル本体（.mp4）はDrive上で見つからなかったため、進捗記録の構成表・判定記述をもとに評価している。
-> 「要目視確認」とした項目は、実ファイルを再生して確認すること。
+> 初版（2026-09-29）は進捗記録の記述をもとに評価した。2026-09-30に実ファイル3本をフレーム単位で確認し、その結果を **2-0** にまとめた。2-1以降の「要目視確認」は2-0で確定している。
 
 ---
 
 ## 1. 結論
 
 - 対象は `pages_show_list` / `pages_read_engagement` / `ads_read` / `ads_management` の4権限。
-- 既存3本のうち、提出に使える可能性があるのは `ads_combined_review.mp4`（ads_read用）の1本だけ。これも下記の不備を直してから出す。
+- 既存3本は、**どの権限にもそのままでは出せない**（2-0参照）。ads_combined は ads_read の流れが最も近いが、途中で別テナントに切り替わり（V2）、撮り直した2回分をつないでいる（V3）。**1つのテナントで撮り直す**必要がある。
+- Page系2権限は、DECA AdのOAuthがPage系権限を要求していない（V1）。撮影より先に、OAuthのscopeを修正する必要がある。
 - 残り2本（`ads_read_review.mp4` / `pages_show_list_review.mp4`）はどの権限にもそのままでは出せない。
 - 撮影は**1回のマスター収録 → 権限別に3本へ切り出し**が最も効率的。ただし各ブロッカーの解消が前提。
+
+---
+
+## 2-0. 実ファイル確認結果（2026-09-30）
+
+### 3本の関係
+
+3本とも同じ2つの録画を切り貼りしたもので、中身が重複している。解像度はすべて 2828×1846・30fps で、音声はない。
+
+| ファイル | 尺 | 中身 |
+| :- | :-: | :- |
+| pages_show_list_review.mp4 | 0:52 | OAuth録画（givery.deca.cloud、9/11撮影）。字幕だけがPage向け |
+| ads_read_review.mp4 | 1:38 | Sync Job録画（abc.deca.cloud、9/12撮影） |
+| ads_combined_review.mp4 | 2:30 | 上の2本を連結して字幕を差し替えたもの（0:00–0:52 がOAuth、0:52–2:30 がSync Job） |
+
+### 3本共通の不備
+
+| # | 時刻（combined基準） | 不備 | 重要度 |
+| :- | :- | :- | :-: |
+| V1 | 0:33–0:38 | **同意画面にPage系の権限が一切ない。** 表示されるのは「ビジネス: Tast」「広告アカウント: ABCライフィズ」と、「広告を管理する」「広告と関連統計へのアクセス」の2項目だけ。**Pageを選ぶ画面もない**。DECA AdのOAuthが pages_show_list / pages_read_engagement を要求していないため、この録画からPage系の動画は作れない | 致命的 |
+| V2 | 0:52 | **途中で別環境に切り替わる。** OAuthは `givery.deca.cloud`（接続 Test-2026-09-11、9/11 17:27）、Sync Jobは `abc.deca.cloud`（作成 9/12 17:38）。URLバーを見れば、同じ操作の流れではないことが分かる | 高 |
+| V3 | 0:47 | **撮り直した2回分をつないでいる。** 冒頭で「Meta Ads - 2026-09-11」と入力したモーダルが、0:47で「Test- 2026-09-11」に変わって再表示される | 高 |
+| V4 | 0:19–0:33 / 2:00以降 | **実クライアントの情報が出ている。** 広告アカウント ABCライフィズ（ID 862380299735095）、他ポートフォリオのエチカ・オンセブンデイズ（ID付き）、株式会社Givery広告支援、Ads Managerのキャンペーン実績と予算（¥375,000 など）、顧客リスト名「Funeral customer」 | 高 |
+| V5 | 0:47 | コールバックURLに認可コード（`code=AQIHn0…`）が出ている。使用済みで失効しているが、ぼかしを入れる | 低 |
+| V6 | 0:00–0:07 | 日本語UIで始まり、画面上で英語に切り替えている。Facebookのダイアログ類とAds Managerは日本語のまま | 中 |
+
+### ads_combined_review.mp4（ads_read用）固有の不備
+
+| # | 時刻 | 不備 | 対応 |
+| :- | :- | :- | :- |
+| C1 | 0:52–1:00 | Unitsの画面（予算・Auto-operated・期間）が映る。「予算は扱わない」という申請文面と食い違って見える | カット |
+| C2 | 1:18–1:45 | Publish後の画面で **Status: Inactive / Last Sync: Never** が大きく映る。「公開したのに動いていない」と読める | Publishせずに「Ad Set選択 → Ads Managerで照合」で終える |
+| C3 | 1:00–1:45 | 字幕「Selecting the target Ad Set…」が約45秒出たままで、ジョブ詳細や一覧読み込みなど関係ない画面にもかかっている | 場面ごとに字幕を分け、「ads_readでAd Set一覧を取得」を明示する |
+| C4 | 1:00 | DECA Adの表記は「Ad Groups」、Metaの表記は「Ad Sets」。審査員が同じものだと分からない | 字幕で `Ad Groups (= Meta Ad Sets)` と補足する |
+| C5 | 1:00 | DECA Ad上ではAd Setの名前しか出ていない（ID・statusはない） | 申請文面の fields を `id, name` に合わせる |
+| C6 | 2:00–2:30 | Ads Managerを「キャンペーン」タブ（成果・予算の列）から開いている | 最初から「広告セット」タブで、該当Ad Set名だけを見せる。数値はぼかす |
+
+### pages_show_list_review.mp4 の判定：使えない。字幕が事実と違う
+
+- 「Granting permissions including pages_show_list」という字幕が、読み込み中の白い画面とビジネスアセット選択の場面（0:17–0:33）にかかっているが、同意画面に pages_show_list は含まれていない（V1）。
+- 「DECA Ad displays managed Facebook Pages…」という字幕が、広告アカウント名（ABCライフィズ / Givery / DECA）の接続一覧にかかっている。Pageは一度も映らない。
+- 字幕の説明が画面の事実と違うため、再提出すると前回の却下理由（Screencast Not Aligned）の再発で済まず、説明に虚偽があると判断されるリスクがある。**再利用しないこと。**
+
+### ads_read_review.mp4 の判定：廃棄
+
+ads_combined の 0:52–2:30 と同じ映像。ログインと権限許可の場面がないため、単体では出せない。
+
+### 追加で必要な修正（開発チーム）
+
+- **OAuthのscopeに `pages_show_list`, `pages_read_engagement` を追加する**（Facebook Login for Business の configuration を使っている場合は、その configuration に追加）。これをしないと、Page系権限の同意画面もPage選択画面も出ない。進捗記録のブロッカー①（`/me/accounts` が空）も、同意時にPageを選んでいないことで説明がつく。
+- 審査の撮影は、**1つの環境（テナント）で、OAuthからSync Jobまでを1回で撮れる状態**にする。
 
 ---
 
@@ -114,7 +165,8 @@ Facebook Login for Business ではPageごとに許可を選ぶ（granular permis
 | :-: | :- | :- | :- | :- |
 | 1 | 2-4の論点1〜4を開発チームに確認（Ad Set選択の実処理、Page詳細画面の有無、ダッシュボードのApp ID、サーバー側トークン） | 吉楽 → 開発 | なし | 回答がそろい、文面の修正方針が決まる |
 | 2 | ads_read の文面を#1の回答に合わせて修正（A2・A6・A7） | 吉楽 | #1 | 文面と動画が1対1で対応する |
-| 3 | ads_read 用のOAuth部分を英語UIで撮り直し、A3〜A5を修正して ads_read を先行提出 | 吉楽 | #2 | 提出完了 |
+| 3 | ads_read 用に、1つのテナント・英語UI・社内テストアカウントで、OAuth → Ad Set選択 → Ads Manager照合を通しで撮り直し、先行提出する（2-0の C1〜C6・V2〜V6 を解消） | 吉楽 | #2 | 提出完了 |
+| 3b | OAuthのscopeに pages_show_list / pages_read_engagement を追加（2-0 V1） | 開発 | なし | 同意画面にPage系の項目とPage選択画面が出る |
 | 4 | `debug_token` で granular_scopes を確認（ブロッカー①） | 吉楽 | なし | Page未選択かPartial accessか切り分けられる |
 | 5 | ポートフォリオ紐付けを外して再接続し、Page選択画面を通るOAuthを成功させる（ブロッカー②） | 吉楽 | なし | `/me/accounts` がPageを返す |
 | 6 | 社内テスト用Pageの Full control 付与 | 小池さん | なし | テスト用Pageが `/me/accounts` に出る |
